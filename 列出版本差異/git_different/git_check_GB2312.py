@@ -47,8 +47,7 @@ def main():
     direct_wirte_raw_data_log(result)    
     
     
-    # 只寫入有簡體字的部分
-    
+    # 只寫入有簡體字的部分    
     if(1):
         # 读取并分割输出
         output_lines = result.stdout
@@ -67,50 +66,49 @@ def main():
                 
                 
     # 只寫入有簡體字的部分，並過慮掉註解
-    
-    # 读取并分割输出
-    output_lines = result.stdout    
-   
-   
-    # 逐行处理输出
-    for line in output_lines.split("\n"):
-        
-        #print('Line is:' + str(line) )
-        
-        # 对每一行做你需要的处理
-        
-        # 是註解，直接過濾
-        stripped_line = line.strip()  # 先去掉前後空白
-        
-        if stripped_line.strip().startswith('//') or stripped_line.startswith('#')  or stripped_line.startswith('/*') or stripped_line.startswith('<!'):
-            continue
-                
-        
-        # 檢是是否有簡體字
-        if contains_simplified_chinese(line.strip()):
-            print(f"字符串 '{line}' 包含简体字")
+    if(1):
+        # 读取并分割输出
+        output_lines = result.stdout
+       
+        # 逐行处理输出
+        for line in output_lines.split("\n"):
             
-            # 過濾註解
+            #print('Line is:' + str(line) )
+            
+            # 对每一行做你需要的处理
+            
+            # 是註解，直接過濾
             stripped_line = line.strip()  # 先去掉前後空白
             
-            if stripped_line.startswith('+') or stripped_line.startswith('-'):
+            if stripped_line.strip().startswith('//') or stripped_line.startswith('#')  or stripped_line.startswith('/*') or stripped_line.startswith('<!'):
+                continue
+                    
+            
+            # 檢是是否有簡體字
+            if contains_simplified_chinese(line.strip()):
+                print(f"字符串 '{line}' 包含简体字")
                 
-                # 去掉空白
-                stripped_line2 = stripped_line[1:].strip()
+                # 過濾註解
+                stripped_line = line.strip()  # 先去掉前後空白
                 
-                # 去掉 TAB
-                stripped_line2=  stripped_line2.lstrip('\t')
-                
-                # 過濾掉以 // 或 # 開頭的行,及前後空白
-                
-                # 開頭是註解的話，則過濾
-                if stripped_line2.startswith('//') or stripped_line2.startswith('#')  or stripped_line2.startswith('/*'):
-                    pass
-                else:                
+                if stripped_line.startswith('+') or stripped_line.startswith('-'):
+                    
+                    # 去掉空白
+                    stripped_line2 = stripped_line[1:].strip()
+                    
+                    # 去掉 TAB
+                    stripped_line2=  stripped_line2.lstrip('\t')
+                    
+                    # 過濾掉以 // 或 # 開頭的行,及前後空白
+                    
+                    # 開頭是註解的話，則過濾
+                    if stripped_line2.startswith('//') or stripped_line2.startswith('#')  or stripped_line2.startswith('/*'):
+                        pass
+                    else:                
+                        append_string_to_file(line.strip(),"GB_filter_annotation.log")
+                else:
                     append_string_to_file(line.strip(),"GB_filter_annotation.log")
-            else:
-                append_string_to_file(line.strip(),"GB_filter_annotation.log")
-    
+        
 
 if __name__ == "__main__":
 

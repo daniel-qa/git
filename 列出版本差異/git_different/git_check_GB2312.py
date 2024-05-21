@@ -38,6 +38,8 @@ def main():
     commit1 = "a39a3f8352"
     commit2 = "588443111b"
     command = f"git diff {commit1} {commit2}"  
+    command = command + " -- . :(exclude)TEAMModelOS/ClientApp/public/lang"  # 排除語系檔
+    
     
     # 运行 Git 命令   
     # 执行命令并捕获输出

@@ -6,7 +6,7 @@ import subprocess
 # 直接寫入 raw_data.log
 def direct_wirte_raw_data_log(file,result):
     with open(file, "w", encoding='utf-8') as file:
-        file.write("標準輸出:\n")
+        #file.write("標準輸出:\n")
         file.write(result.stdout)
     
 

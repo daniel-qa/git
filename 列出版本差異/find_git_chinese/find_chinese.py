@@ -26,6 +26,8 @@ def process_diff(input_file, output_file):
     for line in lines:
         stripped_line = line.strip()
         
+        print("stripped_line :"  + stripped_line)
+        
         # Track the current file being processed
         if stripped_line.startswith('+++ b/'):
             current_file = extract_file_info(stripped_line)
@@ -38,11 +40,20 @@ def process_diff(input_file, output_file):
             if line_info:
                 current_line_number = int(line_info.group(1)) - 1
             continue
+            
+        # filter start with '-' and '---'
+        if stripped_line.startswith('-')  or stripped_line.startswith('---'):
+            continue
+        
 
         # Increment the line number for added lines
         if stripped_line.startswith('+') and not stripped_line.startswith('+++'):
             current_line_number += 1
             if contains_chinese(stripped_line) and not is_excluded_line(stripped_line[1:].strip()):
+                output_lines.append(f"{current_file}:{current_line_number}: {line}")
+        else:
+            current_line_number += 1
+            if contains_chinese(stripped_line) and not is_excluded_line(stripped_line.strip()):
                 output_lines.append(f"{current_file}:{current_line_number}: {line}")
 
     with open(output_file, 'w', encoding='utf-8') as f:

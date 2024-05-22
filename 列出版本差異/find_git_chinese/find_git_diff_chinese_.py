@@ -3,6 +3,11 @@ import os
 import re
 import subprocess
 
+"""
+Author: Daniel
+Date: 2024.05.22
+Description: This script compares two Git commits, filters out specific files, and outputs lines containing Chinese characters to a log file.
+"""
 
 def contains_chinese(text):
     """Check if a string contains any Chinese characters."""

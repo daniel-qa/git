@@ -2,10 +2,11 @@
 import os
 import re
 import subprocess
+from datetime import datetime, timedelta
 
 """
 Author: Daniel
-Date: 2024.05.22
+Date: 2024.05.27
 Description: This script compares two Git commits, filters out specific files, and outputs lines containing Chinese characters to a log file.
 """
 
@@ -23,6 +24,8 @@ def extract_file_info(line):
     file_info = re.search(r'\+\+\+ b/(.*)', line)
     return file_info.group(1) if file_info else None
 
+
+#  找出中文字，過濾註解，並輸出至 git_diff.log
 def process_diff(input_file, output_file):
     with open(input_file, 'r', encoding='utf-8') as f:
         lines = f.readlines()
@@ -76,6 +79,7 @@ def direct_wirte_raw_data_log(file,result):
         #file.write("標準輸出:\n")
         file.write(result.stdout)
 
+# 產出 git_diff.log 
 def git_diff_log(commit1,commit2):
     # 獲取當前工作目錄
     current_directory = os.getcwd()
@@ -94,6 +98,8 @@ def git_diff_log(commit1,commit2):
     command = command + " :(exclude)TEAMModelOS.SDK"  # 排除 TEAMModelOS.SDK專案
     command = command + " :(exclude)TEAMModelOS.TEST"  # 排除 TEAMModelOS.TEST專案
     command = command + " :(exclude)TEAMModelOS/TEAMModelOS.csproj"  # 排除 csproj專案檔
+    command = command + " :(exclude)TEAMModelContest"  # 排除 csproj專案檔
+    
     
     print( command)
     
@@ -151,7 +157,41 @@ def format_log(input_file_path,output_file_path):
         outfile.writelines(output_lines)
 
     print("处理后的内容已写入到", output_file_path)
+
+def run_git_command(command):
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
+    if result.returncode != 0:
+        raise Exception(f"Git command failed: {result.stderr}")
+    return result.stdout.strip()
+
+def get_latest_commit():
+    command = "git log -1 --pretty=format:%h"
+    return run_git_command(command)
+
+def get_commit_one_day_ago():
+    one_day_ago = (datetime.now() - timedelta(days=1)).isoformat()
+    command = f"git log -1 --before='{one_day_ago}' --pretty=format:%h"
+    return run_git_command(command)
     
+def get_commit_three_days_ago():
+    three_days_ago = (datetime.now() - timedelta(days=3)).isoformat()
+    command = f"git log -1 --before='{three_days_ago}' --pretty=format:%h"
+    return run_git_command(command)    
+
+def get_commit_one_week_ago():
+    one_week_ago = (datetime.now() - timedelta(weeks=1)).isoformat()
+    command = f"git log -1 --before='{one_week_ago}' --pretty=format:%h"
+    return run_git_command(command)
+ 
+def get_commit_two_weeks_ago():
+    two_weeks_ago = (datetime.now() - timedelta(weeks=2)).isoformat()
+    command = f"git log -1 --before='{two_weeks_ago}' --pretty=format:%h"
+    return run_git_command(command) 
+
+def get_commit_one_month_ago():
+    one_month_ago = (datetime.now() - timedelta(days=30)).isoformat()
+    command = f"git log -1 --before='{one_month_ago}' --pretty=format:%h"
+    return run_git_command(command)
 
 if __name__ == "__main__":
 
@@ -159,19 +199,46 @@ if __name__ == "__main__":
     os.system("chcp 65001")
     os.system("chcp")
 
-    # git diff log
-    commit1 = "c821ac6e3a"
-    commit2 = "9c7e3b9000"
+      # 獲取當前工作目錄
+    current_directory = os.getcwd()
     
-    git_diff_log(commit1,commit2)    
+    # 切换工作目录
+    new_dir = r"D:\git_clone\TEAMModelOS"
+    os.chdir(new_dir)    
+    # 要設定跟蹤遠端 branch
+    os.system("git branch --set-upstream-to=origin/develop develop")    
+    # git pull
+    os.system("git pull")
 
-    input_file = 'git_diff.log'  # 输入文件名
-    output_file = 'output.log'  # 输出文件名
+    # 取得最新 commit ，及一星期前的一個 commit 
+    latest_commit = get_latest_commit()
+    commit_one_week_ago = get_commit_one_week_ago()
+    
+    print(f"Latest commit: {latest_commit}")
+    print(f"Commit one week ago: {commit_one_week_ago}")
 
-    # 找出中文字，並輸出至 output.log
-    process_diff(input_file, output_file)
+    # 切换原工作目录  
+    os.chdir(current_directory)
+    
+    if(1):
 
-    # 格式化 output.log ,並輸出至新檔案
-    final_file = "IES5 找到中文字串.log"
-    format_log(output_file,final_file)
+        # git diff log
+        #commit1 = "794355bcb5"
+        #commit2 = "ca6091003b"
+        
+        commit1 = latest_commit
+        commit2 = commit_one_week_ago
+        
+        
+        input_file = 'git_diff.log'  # 输入文件名
+        output_file = 'output.log'  # 输出文件名
+        
+        git_diff_log(commit1,commit2)               
+       
+        # 找出中文字，並輸出至 output.log
+        process_diff(input_file, output_file)
+        
+        # 格式化 output.log ,並輸出至新檔案
+        final_file = "IES5 找到中文字串.log"
+        format_log(output_file,final_file)
     
